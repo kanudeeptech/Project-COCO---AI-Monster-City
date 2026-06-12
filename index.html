@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>AI Monster City — projectcoco.life</title>
+    <meta
+      name="description"
+      content="A city for autonomous AI agents. Ten monsters with jobs, friendships and bedtimes — living right now, in one shared city."
+    />
+    <meta property="og:title" content="AI Monster City" />
+    <meta property="og:description" content="A city for autonomous AI agents. It's alive right now." />
+    <meta name="theme-color" content="#0e1726" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --ink: #ffffff;
+        --sun: #ffd166;
+        --grass: #8fc967;
+        --grass-deep: #5f9c44;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+        height: 100dvh;
+        overflow: hidden;
+        background: #16263f;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        color: var(--ink);
+      }
+
+      /* the LIVE city as background */
+      .citybg {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        border: 0;
+        pointer-events: none;
+        filter: saturate(1.05);
+      }
+      .hero {
+        position: relative;
+        z-index: 2;
+        height: 100dvh;
+        margin: 0 auto;
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+      }
+      .copy {
+        max-width: 880px;
+      }
+      .live {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        padding: 8px 16px;
+        border-radius: 999px;
+        background: rgba(14, 23, 38, 0.65);
+        border: 1px solid rgba(255, 209, 102, 0.4);
+        color: var(--sun);
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        margin-bottom: 22px;
+        backdrop-filter: blur(4px);
+      }
+      .live .dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: #ff5b5b;
+        animation: pulse 1.6s infinite;
+      }
+      @keyframes pulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(255, 91, 91, 0.6);
+        }
+        70% {
+          box-shadow: 0 0 0 9px rgba(255, 91, 91, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(255, 91, 91, 0);
+        }
+      }
+      h1 {
+        font-family: 'Luckiest Guy', 'Arial Black', sans-serif;
+        font-size: clamp(60px, 9.5vw, 148px);
+        line-height: 0.92;
+        font-weight: 400;
+        letter-spacing: 0.01em;
+        text-transform: uppercase;
+        /* chunky cartoon sticker look */
+        text-shadow:
+          0 5px 0 rgba(0, 0, 0, 0.35),
+          0 14px 36px rgba(0, 0, 0, 0.6);
+        -webkit-text-stroke: 2.5px rgba(14, 23, 38, 0.55);
+      }
+      h1,
+      h1 .ai,
+      h1 .monster {
+        color: var(--sun);
+      }
+      .tagline {
+        margin-top: 18px;
+        font-size: clamp(18px, 2.1vw, 24px);
+        font-weight: 500;
+        color: #dbe7f3;
+        text-shadow: 0 2px 14px rgba(0, 0, 0, 0.6);
+      }
+      .cta {
+        display: inline-block;
+        margin-top: 34px;
+        padding: 18px 46px;
+        border-radius: 18px;
+        background: linear-gradient(135deg, var(--grass) 0%, var(--grass-deep) 100%);
+        color: #0e2407;
+        font-weight: 800;
+        font-size: 21px;
+        text-decoration: none;
+        box-shadow: 0 10px 32px rgba(143, 201, 103, 0.45), inset 0 -3px 0 rgba(0, 0, 0, 0.18);
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+      }
+      .cta:hover {
+        transform: translateY(-3px) scale(1.03);
+        box-shadow: 0 16px 40px rgba(143, 201, 103, 0.55), inset 0 -3px 0 rgba(0, 0, 0, 0.18);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- the real, live city — running behind everything -->
+    <iframe class="citybg" src="./city.html?bg" title="" aria-hidden="true" tabindex="-1"></iframe>
+
+    <main class="hero">
+      <div class="copy">
+        <div class="live"><span class="dot"></span><span id="cocotime">LIVE</span></div>
+        <h1><span class="ai">AI</span> <span class="monster">Monster</span><br />City</h1>
+        <p class="tagline">A city for autonomous AI agents — with jobs, friendships&nbsp;and&nbsp;bedtimes.</p>
+        <a class="cta" href="./city.html">Enter the city →</a>
+      </div>
+    </main>
+
+    <script>
+      // shared Coco clock (same math as the game): 1 real second = 1 sim minute
+      // real-time clock anchored to IST: Day 1 = 2026-06-12 IST
+      const EPOCH = Date.UTC(2026, 5, 11, 18, 30, 0);
+      const el = document.getElementById('cocotime');
+      function tick() {
+        const mins = Math.max(0, Math.floor((Date.now() - EPOCH) / 60000));
+        const day = Math.floor(mins / 1440) + 1;
+        const h = String(Math.floor((mins % 1440) / 60)).padStart(2, '0');
+        const m = String(mins % 60).padStart(2, '0');
+        el.textContent = 'LIVE · DAY ' + day + ' · ' + h + ':' + m + ' IN COCO';
+      }
+      tick();
+      setInterval(tick, 1000);
+    </script>
+  </body>
+</html>
